@@ -1,0 +1,106 @@
+---
+title: "Mock Clinical Data Management Study"
+subtitle: "Validation, queries, coding and SDTM mapping (dummy data, based on NCT01719003)"
+author: "Dheerajh Goud"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+# Runs your whole script, so every table below exists in memory.
+source("04_Code/validations_check.R")
+```
+
+# 1. Study overview
+
+End-to-end mock data management project built on the public trial NCT01719003
+(empagliflozin and metformin in type 2 diabetes, 24 weeks). All data are
+**dummy data**; no real patient information was used.
+
+| Item | Detail |
+|---|---|
+| eCRF | Built in REDCap: 9 forms, 5 visits, 79 fields |
+| Subjects | 30 (dummy) |
+| Data cleaning | 39 edit checks programmed in R |
+| Coding | MedDRA-style (adverse events), WHO-DD/ATC-style (medications) |
+| Standards | SDTM DM and AE domains |
+
+# 2. Data validation
+
+I seeded 39 known errors in the dataset and validated the checks against the answer key.
+**Result: all 39 seeded errors were found, with no false positives.**
+
+Discrepancies found: **`r nrow(findings)`**
+
+```{r}
+knitr::kable(findings %>% count(form, name = "Discrepancies") %>% arrange(desc(Discrepancies)))
+```
+
+## Discrepancy listing
+
+```{r}
+knitr::kable(findings %>% select(subject_id, form, visit, variable, value, check))
+```
+
+# 3. Query management
+
+Queries raised: **`r nrow(query_log)`** | Open: **`r sum(query_log$status == "Open")`**
+
+```{r}
+q_by_form <- query_log %>% count(form, sort = TRUE)
+par(mar = c(4, 12, 2, 1))
+barplot(rev(q_by_form$n), names.arg = rev(q_by_form$form), horiz = TRUE,
+        las = 1, xlab = "Number of queries")
+```
+
+Example queries (non-leading wording: state the value, ask the site to confirm or correct):
+
+```{r}
+knitr::kable(head(query_log %>% select(query_id, subject_id, query_text), 5))
+```
+
+# 4. Medical coding
+
+```{r}
+knitr::kable(ae_coded %>% filter(!is.na(pt_term)) %>%
+               count(soc_term, pt_term, name = "Events") %>% arrange(desc(Events)))
+```
+
+**Uncoded term (awaiting site clarification):**
+
+```{r}
+knitr::kable(ae_coded %>% filter(is.na(pt_term)) %>% select(subject_id, aeterm))
+```
+
+# 5. SAE reconciliation (EDC vs safety database)
+
+```{r}
+knitr::kable(recon %>% select(subject_id, case_id, edc_term, sd_term, issues))
+```
+
+# 6. SDTM datasets
+
+## DM (first 10 subjects)
+
+```{r}
+knitr::kable(head(dm_sdtm, 10))
+```
+
+## AE (first 10 events)
+
+```{r}
+knitr::kable(head(ae_sdtm, 10))
+```
+
+# 7. Database lock status
+
+**Decision: not ready to lock.** 7 of 23 checklist items are done. The main blockers are
+44 open queries, 1 uncoded term, and 3 open SAE discrepancies.
+
+# 8. Tools used
+
+REDCap, R (dplyr, readxl, writexl), R Markdown, SDTM and CDISC concepts, ICH-GCP.
