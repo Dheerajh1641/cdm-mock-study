@@ -8,7 +8,7 @@ SDTM mapping and a database lock checklist.
 > public trial [NCT01719003](https://clinicaltrials.gov/study/NCT01719003)
 > (empagliflozin + metformin in type 2 diabetes, 24 weeks). This project is not affiliated with the trial sponsor.
 
-**Full report:** open `CDM-report.html` (or the live page, if GitHub Pages is enabled: *add link here*).
+**Full report (live page):** [View the CDM report](https://dheerajh1641.github.io/cdm-mock-study/CDM_report.html)
 
 ## Key results
 
@@ -28,20 +28,33 @@ SDTM mapping and a database lock checklist.
 
 | Phase | What I did | Where |
 |---|---|---|
-| 1. Study start-up | Chose a public trial, wrote a CRF specification, built the eCRF in REDCap | `02_REDCap_backup/` |
+| 1. Study start-up | Chose a public trial, wrote a CRF specification, built the eCRF in REDCap | `01_CRF_Design/`, `02_REDCap_backup/` |
 | 2. Data generation | Created a 30-subject dummy dataset with a hidden answer key of seeded errors | `03_Data/` |
 | 3. Validation | Wrote 39 R edit checks that build a discrepancy listing | `04_Code/validations_check.R` |
 | 4. Query management | Turned discrepancies into a query log | `05_Queries/` |
 | 5. Coding | Mapped verbatim terms to preferred terms, body systems and ATC codes | `04_Code/`, `05_Queries/coded_data.xlsx` |
 | 6. SAE reconciliation | Compared EDC serious AEs with a safety database listing | `05_Queries/sae_reconciliation.xlsx` |
 | 7. SDTM | Mapped DM and AE to SDTM | `06_SDTM/` |
-| 8. Close-out | Database lock checklist | `Database_Lock_Checklist_Mock.xlsx` |
+| 8. Close-out | Database lock checklist | `07_Close_out/Database_Lock_Checklist_Mock.xlsx` |
+
+## Project structure
+
+| Folder / file | Contents |
+|---|---|
+| `01_CRF_Design/` | CRF specification |
+| `02_REDCap_backup/` | REDCap screenshots, data dictionary and instruments PDF |
+| `03_Data/` | Dummy dataset, mock randomisation list, mock safety listing |
+| `04_Code/` | R script with all edit checks, coding, reconciliation and SDTM steps |
+| `05_Queries/` | Discrepancy listing, query log, coded data, SAE reconciliation |
+| `06_SDTM/` | DM and AE domains |
+| `07_Close_out/` | Database lock checklist |
+| `CDM_report.Rmd` / `CDM_report.html` | Full report (R Markdown source and output) |
 
 ## How to reproduce
 
 1. Install R and RStudio, then the packages: `install.packages(c("readxl", "dplyr", "tidyr", "purrr", "writexl", "rmarkdown", "knitr"))`
 2. Open the project folder in RStudio.
-3. Run `04_Code/validations_check.R`, or knit `CDM-report.Rmd` to rebuild the report (it runs the script).
+3. Run `04_Code/validations_check.R`, or knit `CDM_report.Rmd` to rebuild the report (it runs the script).
 
 ## Tools and skills
 
